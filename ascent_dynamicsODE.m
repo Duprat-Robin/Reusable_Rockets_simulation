@@ -1,4 +1,4 @@
-function [dy] = ascent_dynamicsODE(t, tf, T, D, y)
+function [dy] = ascent_dynamicsODE(T, D, y)
 %ASCENT_DYNAMICS: This function provide the differential equations for the
 %dynamics of the rockets during the ascention phase.
 %   The function return a column vector dy corresponding to [acceleration,
