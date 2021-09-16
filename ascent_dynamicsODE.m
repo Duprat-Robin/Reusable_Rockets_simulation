@@ -10,10 +10,11 @@ function [dy] = ascent_dynamicsODE(T, D, y)
 %   y is the state vector, dy is the time derivative of y
 
 Re = 6371e3; %Earth radius (m). To adapt with the Launch point (average 6371km)
-g0=9.81; %gravitational acceleration on Earth surface (m/s^2)
+g0=9.80665; %gravitational acceleration on Earth at sea level (m/s^2)
 %%TBD: Isp
 
 dy = zeros(5,1);
+g = g0*(y(4)/(Re+y(4)))^2; %Earth model: gravitational accelration in function of the alitude
 
 dy(1) = (T-D)/y(5) - g*sin(y(2)); %acceleration (m/s^2)
 dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4))); %flight path angle (1/s)
