@@ -1,4 +1,5 @@
 %% Gunnar Tibert, KTH, 2020-04-20
+%% First git test configuration
 
 %% Simulating the powered descent landing on the Moon
 clear,clc,clf
