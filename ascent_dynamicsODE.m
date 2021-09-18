@@ -11,7 +11,7 @@ function [dy] = ascent_dynamicsODE(T, D, y)
 
 Re = 6371e3; %Earth radius (m). To adapt with the Launch point (average 6371km)
 g0=9.80665; %gravitational acceleration on Earth at sea level (m/s^2)
-%%TBD: Isp
+Isp = 400; %Isp (s). TBD
 
 dy = zeros(5,1);
 g = g0*(y(4)/(Re+y(4)))^2; %Earth model: gravitational accelration in function of the alitude
