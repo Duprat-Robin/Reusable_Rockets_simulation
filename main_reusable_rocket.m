@@ -17,8 +17,8 @@
 %% Constant values
 
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
-R_E=6378e3; % mean radius of Earth (m)
-g_E=9.80665; % gravity of Earth at sea level (m/s^2)
+Re=6378e3; % mean radius of Earth (m)
+g0=9.80665; % gravity of Earth at sea level (m/s^2)
 
 m0 = 1000e3; % initiale mass of the rocket (kg)
 t0 = O; % ignition time of the 1st stage (s)
@@ -32,4 +32,9 @@ gamma = 0; % (rad)
 x = 0; % (m)
 h = 0; % (m) Sea level, to adpat in function of the sarting point
 m = m0;
-y = [V; gamma; x; H; m]; % State vector, 1 column
+y0 = [V; gamma; x; H; m]; % State vector, 1 column
+
+tf1 = 10; % Final time for phase 1 (s). Must be a short time
+
+%We need to compute T and D...
+[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, D, y0), [to, tf1], y0);
