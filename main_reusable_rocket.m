@@ -36,5 +36,5 @@ y0 = [V; gamma; x; H; m]; % State vector, 1 column
 
 tf1 = 10; % Final time for phase 1 (s). Must be a short time
 
-%We need to compute T and D...
-[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, D, y0), [to, tf1], y0);
+%We need to estimate the thrust delivered by the engines
+[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, y0), [to, tf1], y0);
