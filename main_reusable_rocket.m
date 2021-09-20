@@ -1,7 +1,7 @@
 %% Description
 % Gravity turn (cf. SD2900 - Rocket Dynamics, slide 25)
     %5 phases:
-    % 1. Let the 1st staghe go vertical for a short time to pick up speed to
+    % 1. Let the 1st stage go vertical for a short time to pick up speed to
     % avoid a too large dgamma/dt
     % 2. Set the flight path angle to a small non-zero value to start the
     % gravity turn
@@ -13,7 +13,7 @@
     % the correct altitude. Note that gamma is NOT a variable for 3rd stage is
     % used.
     % Final conditions: gamma=0, H=H*, V=V*
-    
+
 %% Constant values
 
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
@@ -32,9 +32,10 @@ gamma = 0; % (rad)
 x = 0; % (m)
 h = 0; % (m) Sea level, to adpat in function of the sarting point
 m = m0;
-y0 = [V; gamma; x; H; m]; % State vector, 1 column
+y0 = [V; gamma; x; h; m]; % State vector, 1 column
 
 tf1 = 10; % Final time for phase 1 (s). Must be a short time
+% On a paper we got 12s.
 
 %We need to estimate the thrust delivered by the engines
 [t, y] = ode45(@(t, y) ascent_dynamicsODE(T, y0), [to, tf1], y0);
