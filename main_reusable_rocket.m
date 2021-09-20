@@ -12,7 +12,7 @@
     % 5. Use the tangent steering law for the 3rd stage to enforce gamma=0 at
     % the correct altitude. Note that gamma is NOT a variable for 3rd stage is
     % used.
-    % Final conditions: gamma=0, H=H*, V=V*
+    % Final conditions (for the rocket and not the mission): gamma=0, H=H*, V=V*
 
 %% Constant values
 
@@ -23,10 +23,17 @@ g0=9.80665; % gravity of Earth at sea level (m/s^2)
 m0 = 1000e3; % initiale mass of the rocket (kg)
 t0 = O; % ignition time of the 1st stage (s)
 
+%% Rocket parameters
+Isp = [400, 467, 400]; %Isp (s) for 1st stage. TBD
+Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
+A = 1; %Surface of the rocket in contact with the airflow (m^2)
+
+T = [11e6, 11e6]; %stages trhrust (N)
+
 %% Phases
 
 % 1.
-% Initial condition*
+% Initial condition
 V = 0; % (m/s)
 gamma = 0; % (rad)
 x = 0; % (m)
@@ -36,6 +43,14 @@ y0 = [V; gamma; x; h; m]; % State vector, 1 column
 
 tf1 = 10; % Final time for phase 1 (s). Must be a short time
 % On a paper we got 12s.
-
+param = [Isp(1), Cd, A];
 %We need to estimate the thrust delivered by the engines
-[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, y0), [to, tf1], y0);
+[t, y] = ode45(@(t, y) ascent_dynamicsODE(T(1), y0, param), [to, tf1], y0);
+
+%2.
+gamma = 0.05*pi/180; % (rad) Non-zero value to start gravity turn
+y1 = y;
+y1(2) = gamma;
+tb1 = mp*g0*Isp/T1; %burnout time of 1st stage (s)
+
+[t, y] = ode45(@(t, y) ascent_dynamicsODE(T(2), y1, param), [tf1, tb1-tf1], y1);
