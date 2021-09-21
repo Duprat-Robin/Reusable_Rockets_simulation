@@ -45,38 +45,38 @@ gamma = 0; % (rad)
 x = 0; % (m)
 h = 0; % (m) Sea level, to adpat in function of the sarting point
 m = m0;
-y0 = [V; gamma; x; h; m]; % State vector, 1 column
+y01 = [V gamma x h m]; % State vector, 1 column
 
 ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
 % On a paper we got 12s.
 param = [Isp(stage), Cd, A, stage];
 %We need to estimate the thrust delivered by the engines
-[t, y] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [t0, ti1], y0, options);
+[t1, y1] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [t0, ti1], y01, options);
 
 %2.
 gamma = 0.05*pi/180; % (rad) Non-zero value to start gravity turn
-y01 = y;
-y01(2) = gamma;
+y02 = [y1(end,1) y1(end,2) y1(end,3) y1(end,4) y1(end,5)];
+y02(end, 2) = gamma;
 tb1 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 1st stage (s)
 tf1 = tb1 - ti1; %end of the 1st stage phase
-[t1, y1] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [ti1, tf1], y01, options);
+[t2, y2] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [ti1, tf1], y02, options);
 
 %3.
 stage = 2;
-y02 = y;
-y02(5) = y02(5)-ms(stage-1); %1st stage removal
+y03 = [y2(end,1) y2(end,2) y2(end,3) y2(end,4) y2(end,5)];
+y03(end,5) = y03(end,5)-ms(stage-1); %1st stage removal
 param(1) = Isp(stage); %Isp update for 2nd stage
 param(5) = stage;
-tb2 = mp(stage)*g0*Isp/T(stage); %burnout time of 2nd stage (s)
-tf2 = tb2 - tf1; %end of the 2nd stage phase
-[t2, y2] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [tf1, tf2], y02, options);
+tb2 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
+tf2 = tb2 + tf1; %end of the 2nd stage phase
+[t3, y3] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [tf1, tf2], y03, options);
 
 %4.
 stage = 3;
-y03 = y;
-y03(5) = y03(5)-ms(stage-1); %2nd stage removal
+y04 = [y3(end,1) y3(end,2) y3(end,3) y3(end,4) y3(end,5)];
+y04(end,5) = y04(end,5)-ms(stage-1); %2nd stage removal
 param(1) = Isp(stage); %Isp update for 2nd stage
 param(5) = stage;
 tb3 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
-tf3 = tb3 - tf2; %end of the 2nd stage phase
-[t3, y3] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [tf2, tf3], y03, options);
+tf3 = tb3 + tf2; %end of the 2nd stage phase
+[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [tf2, tf3], y04, options);
