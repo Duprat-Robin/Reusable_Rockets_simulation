@@ -27,11 +27,12 @@ rho = atmosphere(y(3), g);
 D = 0.5*A*rho*Cd*y(1)^2; % Drag (N)
 
 dy(1) = (T-D)/y(5) - g*sin(y(2)); %acceleration (m/s^2)
-if stage ~= 3
-    dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4)))*cos(y(2)); %flight path angle (1/s)
-else
-    dy(2) = 0; %in this phase, gamma is no longer a variable because of steering law
-end
+% if stage ~= 3
+%     dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4)))*cos(y(2)); %flight path angle (1/s)
+% else
+%     dy(2) = 0; %in this phase, gamma is no longer a variable because of steering law
+% end
+dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4)))*cos(y(2)); %flight path angle (1/s)
 dy(3) = Re*y(1)*cos(y(2))/(Re+y(4)); %ground distance rate (m/s)
 dy(4) = y(1)*sin(y(2)); %altitude rate (m/s)
 dy(5) = -abs(T)/Isp/g0; %mass flow rate (kg/s)

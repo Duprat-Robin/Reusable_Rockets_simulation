@@ -15,7 +15,7 @@ H_tropopause = 11e3; %altitude of the tropopause (m)
 if h<H_tropopause
     rho = (p0*M/(R*T0)) * (1-L*h/T0)^(g*M/(R*L)-1); %air density at altitude h=y(3) (kg/m^3) in the Troposphere
 else
-    rho = 0;
+    rho = 1;
 end
 end
 

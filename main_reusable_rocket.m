@@ -45,7 +45,7 @@ gamma = 0; % (rad)
 x = 0; % (m)
 h = 0; % (m) Sea level, to adpat in function of the sarting point
 m = m0;
-y01 = [V gamma x h m]; % State vector, 1 column
+y01 = [V gamma x h m]; % Initial state vector, 1 line
 
 ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
 % On a paper we got 12s.
@@ -80,3 +80,14 @@ param(5) = stage;
 tb3 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf3 = tb3 + tf2; %end of the 2nd stage phase
 [t4, y4] = ode45(@(t, y) ascent_dynamicsODE(T(stage), y, param), [tf2, tf3], y04, options);
+
+%% Ploting phase
+figure(1); hold on;
+plot(t1,y1(:,3)/1e3,'r','LineWidth',2);
+plot(t2,y2(:,3)/1e3,'g','LineWidth',2);
+plot(t3,y3(:,3)/1e3,'b','LineWidth',2);
+plot(t4,y4(:,3)/1e3,'LineWidth',2);
+title('Altitude change');
+xlabel('Time (s)');
+ylabel('Altitude (km)');
+grid;
