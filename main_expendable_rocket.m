@@ -58,12 +58,30 @@ V_apogee = sqrt(mu*(2/h_target-1/a)); %velocity at the apogee of the transfer or
 Delta_V_perigee = V_perigee - Vc1;
 Delta_V_apogee = Vc2 - V_apogee;
 Delta_V = Delta_V_perigee + Delta_V_apogee; % cost of the total transfer 
-Delta_t = pi*sqrt(a^3/h_target); % transfer time
+Delta_t = pi*sqrt(a^3/mu); % transfer time
 
-g_perigee=mu/(h^2);
-m_final_perigee=m_init*exp(-Delta_V_perigee/(Isp*g_perigee)); % final mass after first thrust (at perigee)
-g_apogee=mu/(h_target^2);
-m_final_apogee=m_final_perigee*exp(-Delta_V_apogee/(Isp*g_apogee)); % final mass after second thrust (at apogee)
-Delta_m= m_init-m_final_apogee; %total propellant cost of the transfer
+Delta_m = m_init-m_init*exp(-Delta_V/(Isp*g0));
+m_s=Delta_m-m_star; %in general m_s = 1/7 m_p
+
+% 7. reentry of a stage 
+% reentry heat and velocity + try do decrease speed : rocket + maybe use a
+% parachute/other (take into account the m_s added, compared to the burned
+% mp) to help braking
+% approx 100m ground : hoovering with high thrusts to reduce speed to 0
+% when touching V gamma x h m
+Re=6378e3; % mean radius of Earth (m)
+Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
+A = 1; %Surface of the rocket in contact with the airflow (m^2)
+stage=1;
+T = [11e4, 11e4, 180e3]; %stages' thrust (N)
+
+Isp = 266; %
+Initial_speed= 6000e3/3600 ;% for example 8000km/h ie, will be y(1) as soon as possible
+Initial_gamma= pi/4; %Assuming a first stage separation at around pi/4, will be y(2) as soon as possible.
+Initial_x = 10000; % Assuming a first stage separation at around 10km, will be y(3) as soon as possible.
+Initial_h= 100e3; % Assuming a first stage separation at around 100km, will be y(4) as soon as possible.
+Initial_m = 25000; % 20000kg structural mass + 5000kg remaining propellant mass, will be y(5)- M_other_stages - M_payload
+
+options = odeset('RelTol',1e-10,'AbsTol',1e-9);
 
 
