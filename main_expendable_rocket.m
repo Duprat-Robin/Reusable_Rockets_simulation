@@ -32,31 +32,26 @@ t0 = 0; % ignition time of the 1st stage (s)
 
 % 1.
 % Initial condition*
-V = 0; % (m/s)
-gamma = 0; % (rad)
-x = 0; % (m)
-h = 0; % (m) Sea level, to adpat in function of the sarting point
-m = m0;
-y0 = [V; gamma; x; h; m]; % State vector, 1 column
 
-tf1 = 10; % Final time for phase 1 (s). Must be a short time
 % On a paper we got 12s.
 
 %We need to estimate the thrust delivered by the engines
-[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, y0), [t0, tf1], y0);
+%[t, y] = ode45(@(t, y) ascent_dynamicsODE(T, y0), [t0, tf1], y0);
 
 
 % 6. Hohmann transfer : using 3rd stage
 Re=6378e3; % mean radius of Earth (m)
 h= Re + 200e3; % Assuming a parking orbit of 200km.
-mu = 3.986004418e14; % constant, assuming M+m is approximately M
+mu = 3.986004418e14; % constant, assuming M+m is approximately M and constant
 h_target = 29599.8e3; % target orbit
 m_init=2100; %initial mass for phase 6. 2100kg for the moment, will be y(5) in the end
 Isp= 467; %Isp stage 3
+m_star=732.8;
+
 g0=9.80665; 
 
 Vc1 = sqrt(mu/h);% current speed on parking orbit
-Vc2 = sqrt(mu/h_target); % current speed on parking orbit
+Vc2 = sqrt(mu/h_target); % to be speed on MEO
 a = (h+h_target)/2; %semi major axis of the transfer orbit
 V_perigee = sqrt(mu*(2/h-1/a)); %velocity at the perigee of the transfer orbit 
 V_apogee = sqrt(mu*(2/h_target-1/a)); %velocity at the apogee of the transfer orbit
