@@ -1,10 +1,10 @@
-function dy = ascent_dynamicsODE(t, T, y, param, gammas, tf)
+function dy = ascent_dynamicsODE_2(t, T, y, param, gammas, tf)
 %ASCENT_DYNAMICS: This function provide the differential equations for the
 %dynamics of the rockets during the ascention phase.
 %   The function return a column vector dy corresponding to [acceleration,
 %   flight path angle, ground distance rate from lift-off, altitude
 %   rate, mass flow rate].
-%   Units: [a = m/s^2, dgamma = 1/s, dh = m/s, dx = m/s, dm = kg/s]. 
+%   Units: [dx = m/s, ddx = m/s^2, dh = m/s, ddh = m/s^2, dm = kg/s]. 
 %   We assume that%   the rocket doesn't generate lift. 
 %   Forces at stake: thrust T, drag D, weight m*g.
 %   y is the state vector, dy is the time derivative of y
@@ -16,7 +16,7 @@ end
 if ~exist('tf', 'var')
     tf = [0, 10];
 end
-iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
+ix = 1; idx = 2; ih = 3; idh = 4; im = 5;
 %% Earth parameters
 Re = 6371e3; %Earth radius (m). To adapt with the Launch point (average 6371km)
 g0=9.80665; %gravitational acceleration on Earth at sea level (m/s^2)
@@ -34,26 +34,21 @@ g = mu_E/((Re+y(ih))^2); %Earth model: gravitational acceleration in function of
 
 [Temp, sound_vel, P, rho] = atmoscoesa(y(ih), 'None'); %Matlab atmospheric model
 
-if isnan(rho)
-    rho = 0;
-end
+D = 0.5*A*rho*Cd*(y(idx)^2+y(idh)^2); % Drag (N)
+q = 0.5*rho*(y(idx)^2+y(idh)^2); %dynamic pressure
 
-D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
-q = 0.5*rho*y(iV)^2; %dynamic pressure
-
-dy(iV) = (T-D)/y(im) - (g-(y(iV)^2)/(Re+y(ih)))*sin(y(igamma)); %acceleration (m/s^2)
 if phase == 1
-    dy(igamma) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
-elseif stage ~= 3 && phase ~= 4 && y(igamma) > 0
-    dy(igamma) = -1/y(iV) * (g-(y(iV)^2)/(Re+y(ih)))*cos(y(igamma)); %flight path angle (1/s)
-elseif phase == 4 || y(igamma) <= 0
-    dy(igamma) = 0; %in this phase, gamma is no longer a variable because of steering law
+    gamma = gammas;
+elseif stage ~= 3 && phase ~= 4
+    gamma = acos(y(idx)/(sqrt(y(idx)^2+y(idh)^2))); %flight path angle
+elseif phase == 4
+    gamma = atan(tan(gammas)*(1-(t-tf(1))/tf(2))); %in this phase, gamma is no longer a variable because of steering law
 end
-dy(ih) = y(iV)*sin(y(igamma)); %altitude rate (m/s)
-if y(ih) >= 100e3
-    dy(ih) = 0;
-end
-dy(ix) = Re*y(iV)*cos(y(igamma))/(Re+y(ih)); %ground distance rate (m/s)
+
+dy(ix) = y(idx);
+dy(idx) = (T+D)*cos(gamma)/y(im) - y(idx)*y(idh)/(Re+y(ih));
+dy(ih) = y(idh);
+dy(idh) = (T+D)*sin(gamma)/y(im) - (g-y(idx)^2/(Re+y(ih)));
 dy(im) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
 
 end
