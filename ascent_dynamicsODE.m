@@ -32,21 +32,18 @@ phase = param(5);
 dy = zeros(5,1);
 g = mu_E/((Re+y(3))^2); %Earth model: gravitational accelration in function of the alitude
 
-[Temp, sound_vel, P, rho] = atmoscoesa(y(2)); %Matlab atmospheric model
+[Temp, sound_vel, P, rho] = atmoscoesa(y(2), 'None'); %Matlab atmospheric model
 
 D = 0.5*A*rho*Cd*y(1)^2; % Drag (N)
 
-dy(1) = (T-D)/y(5) - g*sin(y(2)); %acceleration (m/s^2)
+dy(1) = (T-D)/y(5) - (g-(y(1)^2)/(Re+y(4)))*sin(y(2)); %acceleration (m/s^2)
 if phase == 1
     dy(2) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
-else
+elseif stage ~= 3 && phase ~= 4
     dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4)))*cos(y(2)); %flight path angle (1/s)
+elseif phase == 4
+    dy(2) = 0; %in this phase, gamma is no longer a variable because of steering law
 end
-% if stage ~= 3
-%     dy(2) = -1/y(1) * (g-(y(1)^2)/(Re+y(4)))*cos(y(2)); %flight path angle (1/s)
-% else
-%     dy(2) = 0; %in this phase, gamma is no longer a variable because of steering law
-% end
 dy(3) = Re*y(1)*cos(y(2))/(Re+y(4)); %ground distance rate (m/s)
 dy(4) = y(1)*sin(y(2)); %altitude rate (m/s)
 dy(5) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
