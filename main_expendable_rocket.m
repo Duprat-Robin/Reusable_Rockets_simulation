@@ -15,6 +15,10 @@
     % Final conditions: gamma=0, H=H*, V=V*
     % 6. Once we are at this parking orbit, we begin the Hohmann transfer to reach the target orbit.   
 
+ %% Simulating the powered descent landing on the Moon
+clear,clc,clf
+
+    
 %% Constant values
 
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
