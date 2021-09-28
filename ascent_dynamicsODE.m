@@ -34,10 +34,6 @@ g = mu_E/((Re+y(ih))^2); %Earth model: gravitational acceleration in function of
 
 [Temp, sound_vel, P, rho] = atmosisa(y(ih)); %Matlab atmospheric model
 
-% if isnan(rho)
-%     rho = 0;
-% end
-
 D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 q = 0.5*rho*y(iV)^2; %dynamic pressure
 
