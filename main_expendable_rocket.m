@@ -96,63 +96,63 @@ yf = [sqrt(mu_E/(Re+Hf)), 0, Hf, Xf, ms(stage)+m_p];
 tmesh = linspace(tf2, tf3, 100);
 solinit = bvpinit(tmesh, y04);
 
-sol = bvp4c(@(t, y) ascent_dynamicsODE(t, T(stage), y, param),@(ya, yb) bcfun(ya, yb, y04, yf), solinit);
+%sol = bvp4c(@(t, y) ascent_dynamicsODE(t, T(stage), y, param),@(ya, yb) bcfun(ya, yb, y04, yf), solinit);
 
-%[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param), [tf2 tf3], y04, options);
+[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param), [tf2 tf3], y04, options);
 % for i=1:size(y4(:,2),1)
 %     y4(i,igamma) = atan(tan(y3(end,igamma)*(1-(t4(i)-tf2)/tb3))); %Steering law: linear tangent law
 % end
 
 %% Ploting phase
-% figure(1); hold on;
-% plot(t1,y1(:,ih)/1e3,'r','LineWidth',2);
-% plot(t2,y2(:,ih)/1e3,'g','LineWidth',2);
-% plot(t3,y3(:,ih)/1e3,'b','LineWidth',2);
-% plot(t4,y4(:,ih)/1e3,'y','LineWidth',2);
-% title('Altitude change');
-% xlabel('Time (s)');
-% ylabel('Altitude (km)');
-% grid;
-% 
+figure(1); hold on;
+plot(t1,y1(:,ih)/1e3,'r','LineWidth',2);
+plot(t2,y2(:,ih)/1e3,'g','LineWidth',2);
+plot(t3,y3(:,ih)/1e3,'b','LineWidth',2);
+plot(t4,y4(:,ih)/1e3,'y','LineWidth',2);
+title('Altitude change');
+xlabel('Time (s)');
+ylabel('Altitude (km)');
+grid;
+
+figure(2); hold on;
+plot(t1,y1(:,igamma)*180/pi,'r','LineWidth',2);
+plot(t2,y2(:,igamma)*180/pi,'g','LineWidth',2);
+plot(t3,y3(:,igamma)*180/pi,'b','LineWidth',2);
+plot(t4,y4(:,igamma)*180/pi,'y','LineWidth',2);
+title('Flight path angle change');
+xlabel('Time (s)');
+ylabel('Flight path angle (deg)');
+grid;
+
 % figure(2); hold on;
 % plot(t1,y1(:,igamma)*180/pi,'r','LineWidth',2);
 % plot(t2,y2(:,igamma)*180/pi,'g','LineWidth',2);
 % plot(t3,y3(:,igamma)*180/pi,'b','LineWidth',2);
-% plot(t4,y4(:,igamma)*180/pi,'y','LineWidth',2);
+% plot(t4,acos(y4(:,2)/sqrt(y4(:,2).^2+y4(:,4).^2))*180/pi,'y','LineWidth',2);
 % title('Flight path angle change');
 % xlabel('Time (s)');
 % ylabel('Flight path angle (deg)');
 % grid;
-% 
-% % figure(2); hold on;
-% % plot(t1,y1(:,igamma)*180/pi,'r','LineWidth',2);
-% % plot(t2,y2(:,igamma)*180/pi,'g','LineWidth',2);
-% % plot(t3,y3(:,igamma)*180/pi,'b','LineWidth',2);
-% % plot(t4,acos(y4(:,2)/sqrt(y4(:,2).^2+y4(:,4).^2))*180/pi,'y','LineWidth',2);
-% % title('Flight path angle change');
-% % xlabel('Time (s)');
-% % ylabel('Flight path angle (deg)');
-% % grid;
-% 
-% figure(3); hold on;
-% plot(y1(:,ix)/1e3,y1(:,ih)/1e3,'r','LineWidth',2);
-% plot(y2(:,ix)/1e3,y2(:,ih)/1e3,'g','LineWidth',2);
-% plot(y3(:,ix)/1e3,y3(:,ih)/1e3,'b','LineWidth',2);
-% plot(y4(:,ix)/1e3,y4(:,ih)/1e3,'y','LineWidth',2);
-% title('Altitude change');
-% xlabel('X position (km)');
-% ylabel('Altitude (km)');
-% grid;
-% 
-% figure(4); hold on;
-% plot(t1,y1(:,iV)/1e3,'r','LineWidth',2);
-% plot(t2,y2(:,iV)/1e3,'g','LineWidth',2);
-% plot(t3,y3(:,iV)/1e3,'b','LineWidth',2);
-% plot(t4,y4(:,iV)/1e3,'y','LineWidth',2);
-% title('Speed change');
-% xlabel('Time (s)');
-% ylabel('Speed (km/s)');
-% grid;
+
+figure(3); hold on;
+plot(y1(:,ix)/1e3,y1(:,ih)/1e3,'r','LineWidth',2);
+plot(y2(:,ix)/1e3,y2(:,ih)/1e3,'g','LineWidth',2);
+plot(y3(:,ix)/1e3,y3(:,ih)/1e3,'b','LineWidth',2);
+plot(y4(:,ix)/1e3,y4(:,ih)/1e3,'y','LineWidth',2);
+title('Altitude change');
+xlabel('X position (km)');
+ylabel('Altitude (km)');
+grid;
+
+figure(4); hold on;
+plot(t1,y1(:,iV)/1e3,'r','LineWidth',2);
+plot(t2,y2(:,iV)/1e3,'g','LineWidth',2);
+plot(t3,y3(:,iV)/1e3,'b','LineWidth',2);
+plot(t4,y4(:,iV)/1e3,'y','LineWidth',2);
+title('Speed change');
+xlabel('Time (s)');
+ylabel('Speed (km/s)');
+grid;
 
 function bc = bcfun(ya, yb, y0, yf) 
 bc = yb-yf';
