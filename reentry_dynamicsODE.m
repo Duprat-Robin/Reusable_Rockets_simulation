@@ -22,25 +22,42 @@ A = param(3); %Surface of the rocket in contact with the airflow (m^2)
 stage = param(4);
 phase = param(5);
 
+iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 %% Rocket dynamaic equation in the Troposphere
 dy = zeros(5,1);
-g = mu_E/((Re+y(3))^2); %Earth model: gravitational acceleration in function of the alitude
+g = mu_E/((Re+y(ih))^2); %Earth model: gravitational acceleration in function of the alitude
 
 [Temp, sound_vel, P, rho] = atmoscoesa(y(3), 'None'); %Matlab atmospheric model
 
-D = 0.5*A*rho*Cd*y(1)^2; % Drag (N)
-
-dy(1) = (T-D)/y(5) - g*sin(y(2)); %acceleration (m/s^2)
-if phase == 7.1 || phase==7.3 %turning phase
-    dy(2) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
-else %going down phase
-    dy(2) = 0; %flight path angle fixed to be pi/2 (1/s)
+D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
+if y(iV)<0&&0
+    %T=0; %thrust while landing : not big and continuous
+    dy(iV) = (-D)/y(im) - g*sin(y(igamma)); %acceleration (m/s^2), drag positive is speed is negative 
+    if phase == 7.1 || phase==7.3 %turning phase
+        dy(igamma) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
+    elseif phase==7.4 || phase==7.5 %going down phase
+        dy(igamma) = 0; %flight path angle fixed to be pi/2 (1/s)
+    else
+        dy(igamma) = -1/y(iV) * (g-(y(iV)^2)/(Re+y(ih)))*cos(y(igamma));
+    end
+    %dy(2)=(gamma(2)-gamma(1))/(tf(2)-tf(1)); %% flight path angle (1/s)
+    dy(ih) = y(iV)*sin(y(igamma)); %altitude rate (m/s)
+    dy(ix) = Re*y(iV)*cos(y(igamma))/(Re+y(ih)); %ground distance rate (m/s)
+    dy(im) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
+else
+    dy(iV) = (T-D)/y(im) - g*sin(y(igamma)); %acceleration (m/s^2)
+    if phase == 7.1 || phase==7.3 %turning phase
+        dy(igamma) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
+    elseif phase==7.4 || phase==7.5 %going down phase
+        dy(igamma) = 0; %flight path angle fixed to be pi/2 (1/s)
+    else
+        dy(igamma) = -1/y(iV) * (g-(y(iV)^2)/(Re+y(ih)))*cos(y(igamma));
+    end
+    %dy(2)=(gamma(2)-gamma(1))/(tf(2)-tf(1)); %% flight path angle (1/s)
+    dy(ih) = y(iV)*sin(y(igamma)); %altitude rate (m/s)
+    dy(ix) = Re*y(iV)*cos(y(igamma))/(Re+y(ih)); %ground distance rate (m/s)
+    dy(im) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
 end
-%dy(2)=(gamma(2)-gamma(1))/(tf(2)-tf(1)); %% flight path angle (1/s)
-dy(3) = y(1)*sin(y(2)); %altitude rate (m/s)
-dy(4) = Re*y(1)*cos(y(2))/(Re+y(3)); %ground distance rate (m/s)
-dy(5) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
-
 
 
 end
