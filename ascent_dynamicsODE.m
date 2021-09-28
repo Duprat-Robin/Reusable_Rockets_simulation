@@ -32,33 +32,40 @@ phase = param(5);
 dy = zeros(5,1);
 g = mu_E/((Re+y(ih))^2); %Earth model: gravitational acceleration in function of the alitude
 
-[Temp, sound_vel, P, rho] = atmoscoesa(y(ih), 'None'); %Matlab atmospheric model
+[Temp, sound_vel, P, rho] = atmosisa(y(ih)); %Matlab atmospheric model
 
-if isnan(rho)
-    rho = 0;
-end
+% if isnan(rho)
+%     rho = 0;
+% end
 
 D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 q = 0.5*rho*y(iV)^2; %dynamic pressure
 
+% Hf = 200e3; %final altitude (m)
+% if y(ih) >= Hf || y(iV) >= sqrt(mu_E/(Re+Hf))
+%      T = 0;
+% end
+
 dy(iV) = (T-D)/y(im) - (g-(y(iV)^2)/(Re+y(ih)))*sin(y(igamma)); %acceleration (m/s^2)
 if phase == 1
     dy(igamma) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
-elseif stage ~= 3 && phase ~= 4 && y(igamma) > 0
+%elseif stage ~= 3 && phase ~= 4 && y(igamma) > 0
+else
     dy(igamma) = -1/y(iV) * (g-(y(iV)^2)/(Re+y(ih)))*cos(y(igamma)); %flight path angle (1/s)
-elseif phase == 4 || y(igamma) <= 0
-    dy(igamma) = 0; %in this phase, gamma is no longer a variable because of steering law
+%elseif phase == 4 || y(igamma) <= 0
+%     dy(igamma) = 0; %in this phase, gamma is no longer a variable because of steering law
 end
+
 dy(ih) = y(iV)*sin(y(igamma)); %altitude rate (m/s)
 
-Hf = 200e3; %final altitude (m)
-if y(ih) >= Hf
-     dy(ih) = 0;
-end
-
-if y(iV) >= sqrt(mu_E/(Re+Hf))
-     dy(iV) = 0;
-end
+% Hf = 200e3; %final altitude (m)
+% if y(ih) >= Hf
+%      dy(ih) = 0;
+% end
+% 
+% if y(iV) >= sqrt(mu_E/(Re+Hf))
+%      dy(iV) = 0;
+% end
 
 dy(ix) = Re*y(iV)*cos(y(igamma))/(Re+y(ih)); %ground distance rate (m/s)
 dy(im) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
