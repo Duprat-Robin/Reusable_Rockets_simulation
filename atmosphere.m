@@ -1,4 +1,4 @@
-function rho = atmosphere(h)
+function rho = atmosphere(h, g)
 %ATMOSPHERE Summary of this function goes here
 %   Detailed explanation goes here
 %% Standard atmosphere
@@ -13,6 +13,9 @@ H_tropopause = 11e3; %altitude of the tropopause (m)
 %% Models
 
 if h<H_tropopause
-    rho = (p0*M/(R*T0)) * (1-L*y(3)/T0)^(g*M/(R*L)-1); %air density at altitude h=y(3) (kg/m^3) in the Troposphere
+    rho = (p0*M/(R*T0)) * (1-L*h/T0)^(g*M/(R*L)-1); %air density at altitude h=y(3) (kg/m^3) in the Troposphere
+else
+    rho = 1; %Just to have a non-zero value, waiting for a better model
+end
 end
 
