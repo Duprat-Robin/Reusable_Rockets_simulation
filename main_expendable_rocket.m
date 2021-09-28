@@ -30,16 +30,16 @@ Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
 A = pi*3.66^2; %Surface of the rocket in contact with the airflow (m^2)
 
-T = [2205000, 533000, 180000]; %stages' trhrust (N)
-ms = [16e3, 4e3, 880]; %stages' strucutal mass (kg)
-mp = [83829.57, 10556.47, 551,64]; %stages' propellant mass (kg)
+T = [2205000, 533000, 180000].*[3,1,1]; %stages' trhrust (N)
+ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
+mp = [418647.6061, 31134.00307, 3751.566963]; %stages' propellant mass (kg)
 
 m_p = 732.8; %Mass of the payload at launch (kg)
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
 V0 = 0; % (m/s)
 gamma0 = pi/2; % (rad)
-gamma1 = gamma0 - 2*pi/180;
+gamma1 = gamma0 - 0.1*pi/180;
 x0 = 0; % (m)
 h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 %% Phases
@@ -52,7 +52,7 @@ param = [Isp(stage), Cd, A, stage, phase];
 
 y01 = [V0 gamma0 h0 x0 m0]; % Initial state vector, 1 line
 
-ti1 = 12; % Final time for phase 1 (s). Must be a short time (i for intermediate)
+ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
 % On a paper we got 12s.
 [t1, y1] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [gamma0, gamma1], [t0, ti1]), [t0 ti1], y01, options);
 
@@ -88,7 +88,7 @@ y04(end,im) = y04(end,im)-ms(stage-1); %2nd stage removal
 
 tb3 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf3 = tb3 + tf2; %end of the 3rd stage phase
-[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param), [tf2 tf3], y04, options);
+[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [y3(end,igamma) 0], [tf2 tf3]), [tf2 tf3], y04, options);
 for i=1:size(y4(:,2),1)
     y4(i,igamma) = atan(tan(y3(end,igamma)*(1-(t4(i)-tf2)/tb3))); %Steering law: linear tangent law
 end
