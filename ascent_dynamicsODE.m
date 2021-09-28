@@ -50,9 +50,16 @@ elseif phase == 4 || y(igamma) <= 0
     dy(igamma) = 0; %in this phase, gamma is no longer a variable because of steering law
 end
 dy(ih) = y(iV)*sin(y(igamma)); %altitude rate (m/s)
-if y(ih) >= 200e3
+
+Hf = 200e3; %final altitude (m)
+if y(ih) >= Hf
      dy(ih) = 0;
 end
+
+if y(iV) >= sqrt(mu_E/(Re+Hf))
+     dy(iV) = 0;
+end
+
 dy(ix) = Re*y(iV)*cos(y(igamma))/(Re+y(ih)); %ground distance rate (m/s)
 dy(im) = -abs(T)/Isp/g0; %mass flow rate (kg/s)
 

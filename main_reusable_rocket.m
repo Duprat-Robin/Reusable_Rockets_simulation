@@ -39,7 +39,7 @@ m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
 V0 = 0; % (m/s)
 gamma0 = pi/2; % (rad)
-gamma1 = gamma0 - 1*pi/180;
+gamma1 = gamma0 - 2*pi/180;
 x0 = 0; % (m)
 h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 %% Phases
@@ -52,7 +52,7 @@ param = [Isp(stage), Cd, A, stage, phase];
 
 y01 = [V0 gamma0 h0 x0 m0]; % Initial state vector, 1 line
 
-ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
+ti1 = 12; % Final time for phase 1 (s). Must be a short time (i for intermediate)
 % On a paper we got 12s.
 [t1, y1] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [gamma0, gamma1], [t0, ti1]), [t0 ti1], y01, options);
 
