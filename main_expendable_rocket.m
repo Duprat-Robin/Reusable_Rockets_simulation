@@ -20,6 +20,8 @@
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
 Re=6378e3; % mean radius of Earth (m)
 g0=9.80665; % gravity of Earth at sea level (m/s^2)
+Hf = 200e3; %parking orbit altitude (m)
+Xf = 200e3; %distance from launch pad at the end of ascent phase (m). Usefull for BVP
 
 t0 = 0; % ignition time of the 1st stage (s)
 
@@ -29,11 +31,10 @@ iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
 A = pi*3.66^2; %Surface of the rocket in contact with the airflow (m^2)
-
-T = [2205000, 533000, 180000].*[3,1,1]; %stages' trhrust (N)
+nb_engines = [3, 1, 1];
+T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
-mp = [418647.6061, 31134.00307, 3751.566963]; %stages' propellant mass (kg)
-
+mp = [418647.6, 31134, 3751.57]; %stages' propellant mass (kg)
 m_p = 732.8; %Mass of the payload at launch (kg)
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
