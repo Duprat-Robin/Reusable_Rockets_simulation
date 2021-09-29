@@ -34,7 +34,7 @@ A = pi*3.66^2; %Surface of the rocket in contact with the airflow (m^2)
 nb_engines = [3, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
-mp = [418647.6, 31134, 3751.57]; %stages' propellant mass (kg)
+mp = [418647.6/2, 31134, 3751.57]; %stages' propellant mass (kg)
 
 m_p = 732.8; %Mass of the payload at launch (kg)
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
