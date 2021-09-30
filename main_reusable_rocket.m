@@ -103,28 +103,28 @@ end
 
 % 6. Hohmann transfer : using 3rd stage
 %Re=6378e3; % mean radius of Earth (m)
-h= Re + y4(end,ih); % Assuming a parking orbit of 200km.
+h_hohmann= Re + y4(end,ih); % Assuming a parking orbit of 200km.
 %mu = 3.986004418e14; % constant, assuming M+m is approximately M and constant
-h_target = 29599.8e3; % target orbit
-m_init=y4(end,im); %initial mass for phase 6. 2100kg for the moment, will be y(5) in the end
+h_target_hohmann = 29599.8e3; % target orbit
+m_init_hohmann=y4(end,im); %initial mass for phase 6. 2100kg for the moment, will be y(5) in the end
 
 %m_star=732.8;
 
 %g0=9.80665; 
 
-Vc1 = sqrt(mu_E/h);% current speed on parking orbit
-Vc2 = sqrt(mu_E/h_target); % to be speed on MEO
-a = (h+h_target)/2; %semi major axis of the transfer orbit
-V_perigee = sqrt(mu_E*(2/h-1/a)); %velocity at the perigee of the transfer orbit 
-V_apogee = sqrt(mu_E*(2/h_target-1/a)); %velocity at the apogee of the transfer orbit
-Delta_V_perigee = V_perigee - Vc1;
-Delta_V_apogee = Vc2 - V_apogee;
-Delta_V = Delta_V_perigee + Delta_V_apogee; % cost of the total transfer 
-Delta_t = pi*sqrt(a^3/mu_E); % transfer time
+Vc1_hohmann = sqrt(mu_E/h_hohmann);% current speed on parking orbit
+Vc2_hohmann = sqrt(mu_E/h_target_hohmann); % to be speed on MEO
+a_hohmann = (h_hohmann+h_target_hohmann)/2; %semi major axis of the transfer orbit
+V_perigee_hohmann = sqrt(mu_E*(2/h_hohmann-1/a_hohmann)); %velocity at the perigee of the transfer orbit 
+V_apogee_hohmann = sqrt(mu_E*(2/h_target_hohmann-1/a_hohmann)); %velocity at the apogee of the transfer orbit
+Delta_V_perigee_hohmann = V_perigee_hohmann - Vc1_hohmann;
+Delta_V_apogee_hohmann = Vc2_hohmann - V_apogee_hohmann;
+Delta_V_hohmann = Delta_V_perigee_hohmann + Delta_V_apogee_hohmann; % cost of the total transfer 
+Delta_t_hohmann = pi*sqrt(a_hohmann^3/mu_E); % transfer time
 
-Delta_m = m_init-m_init*exp(-Delta_V/(Isp(stage)*g0));
-disp(Delta_m);
-m_s=Delta_m-m_p; %in general m_s = 1/7 m_p
+Delta_m_hohmann = m_init_hohmann-m_init_hohmann*exp(-Delta_V_hohmann/(Isp(stage)*g0));
+disp(Delta_m_hohmann);
+m_s_hohmann=Delta_m_hohmann-m_p; %in general m_s = 1/7 m_p
 
 %% Ploting phase for payload
 plot_payload = false;
@@ -457,7 +457,7 @@ tf_reentry_4 = 60*4+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 
 
 %% Ploting phase
-if plot_stage1
+if plot_stage2
     figure(10); hold on;
     if add_ascent_plot
         plot(t1,y1(:,ih)/1e3,'Color','#0072BD','LineWidth',2);
@@ -554,16 +554,17 @@ end
 
 
 delta_V_descent_stage_2=[y_reentry_0(1,iV), y_reentry_0(end,iV), y_reentry_1(end,iV), y_reentry_2(end,iV), y_reentry_3(end,iV), y_reentry_4(end,iV)];
-
-disp(" V stage 1");
-disp(delta_V_descent_stage_1);
-disp(" V stage 2");
-disp(delta_V_descent_stage_2);
-disp("delta V stage 1");
-for i=1:5
-    disp(delta_V_descent_stage_1(i+1)-delta_V_descent_stage_1(i));
-end
-disp("delta V stage 2");
-for i=1:5
-    disp(delta_V_descent_stage_2(i+1)-delta_V_descent_stage_2(i));
+if plot_stage1 && plot_stage2
+    disp(" V stage 1");
+    disp(delta_V_descent_stage_1);
+    disp(" V stage 2");
+    disp(delta_V_descent_stage_2);
+    disp("delta V stage 1");
+    for i=1:5
+        disp(delta_V_descent_stage_1(i+1)-delta_V_descent_stage_1(i));
+    end
+    disp("delta V stage 2");
+    for i=1:5
+        disp(delta_V_descent_stage_2(i+1)-delta_V_descent_stage_2(i));
+    end
 end
