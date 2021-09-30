@@ -364,6 +364,7 @@ if plot_stage1
     grid;
 end
 
+delta_V_descent_stage_1=[y_reentry_0(1,iV), y_reentry_0(end,iV), y_reentry_1(end,iV), y_reentry_2(end,iV), y_reentry_3(end,iV), y_reentry_4(end,iV)];
  %% Simulating the powered descent landing of the reusable rocket
 
     
@@ -549,4 +550,20 @@ if plot_stage1
     set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
     legend(lengend_list)
     grid;
+end
+
+
+delta_V_descent_stage_2=[y_reentry_0(1,iV), y_reentry_0(end,iV), y_reentry_1(end,iV), y_reentry_2(end,iV), y_reentry_3(end,iV), y_reentry_4(end,iV)];
+
+disp(" V stage 1");
+disp(delta_V_descent_stage_1);
+disp(" V stage 2");
+disp(delta_V_descent_stage_2);
+disp("delta V stage 1");
+for i=1:5
+    disp(delta_V_descent_stage_1(i+1)-delta_V_descent_stage_1(i));
+end
+disp("delta V stage 2");
+for i=1:5
+    disp(delta_V_descent_stage_2(i+1)-delta_V_descent_stage_2(i));
 end
