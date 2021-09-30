@@ -91,7 +91,7 @@ tb3 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf3 = tb3 + tf2; %end of the 3rd stage phase
 [t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [y3(end,igamma) 0], [tf2 tf3]), [tf2 tf3], y04, options);
 for i=1:size(y4(:,2),1)
-    y4(i,igamma) = atan(tan(y3(end,igamma)*(1-(t4(i)-tf2)/tb3))); %Steering law: linear tangent law
+    y4(i,igamma) = atan(tan(y3(end,igamma))*(1-(t4(i)-tf2)/tb3)); %Steering law: linear tangent law
 end
 
 % 6. Hohmann transfer : using 3rd stage
