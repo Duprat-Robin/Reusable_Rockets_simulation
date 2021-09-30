@@ -279,18 +279,20 @@ tf_reentry_4 = 60*4+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 
 %% Ploting phase
 plot_stage1 = true;
+plot_stage2 = true;
 add_ascent_plot=true;
+font_size=26;
 lengend_list=["Waiting phase before reentry", "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
-    "Turning phase to land at 90°", "Deploy parachutes and thrusting before landing"];
+    "Turning phase to land at 90°", "Parachutes and thrusting phase"];
 
 if plot_stage1
     figure(5); hold on;
     if add_ascent_plot
         plot(t1,y1(:,ih)/1e3,'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
         plot(t2,y2(:,ih)/1e3,'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
-        lengend_list=["Ascent phase before gravity turn", "Thrusting phase during gravity turn", "Waiting phase before reentry",...
+        lengend_list=["Ascent phase before gravity turn", "Ascent phase of stage 1", "Waiting phase before reentry",...
             "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
-            "Turning phase to land at 90°", "Deploy parachutes and thrusting before landing"] ;
+            "Turning phase to land at 90°", "Parachutes and thrusting phase"] ;
     end
     plot(t_reentry_0,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
     plot(t_reentry_1,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
@@ -298,23 +300,12 @@ if plot_stage1
     plot(t_reentry_3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
     plot(t_reentry_4,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
     %plot(t_reentry_5,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
-    title(['Altitude change for reentry of stage ' num2str(reentry_stage)]);
+    title(['Altitude evolution in function of time for the reentry of stage ' num2str(reentry_stage)]);
     xlabel('Time (s)');
     ylabel('Altitude (km)');
-    set(findall(gcf,'-property','FontSize'),'FontSize',12)
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
     legend(lengend_list)
     grid;
-
-    % figure(6); hold on;
-    % plot(t_reentry_1,y_reentry_1(:,igamma)*180/pi,'r','LineWidth',2);
-    % plot(t_reentry_2,y_reentry_2(:,igamma)*180/pi,'g','LineWidth',2);
-    % plot(t_reentry_3,y_reentry_3(:,igamma)*180/pi,'b','LineWidth',2);
-    % plot(t_reentry_4,y_reentry_4(:,igamma)*180/pi,'c','LineWidth',2);
-    % %plot(t_reentry_5,y_reentry_5(:,igamma)*180/pi,'m','LineWidth',2);
-    % title(['Flight path angle change for reentry of stage ' num2str(reentry_stage)]);
-    % xlabel('Time (s)');
-    % ylabel('Flight path angle (deg)');
-    % grid;
 
     figure(7); hold on;
     if add_ascent_plot
@@ -327,9 +318,11 @@ if plot_stage1
     plot(y_reentry_3(:,ix)/1e3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
     plot(y_reentry_4(:,ix)/1e3,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
     %plot(y_reentry_5(:,ix)/1e3,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
-    title(['Altitude change for reentry of stage ' num2str(reentry_stage)]);
+    title(['Altitude evolution in function of ground distance for the reentry of stage ' num2str(reentry_stage)]);
     xlabel('X position (km)');
     ylabel('Altitude (km)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
     grid;
 
     figure(8); hold on;
@@ -345,9 +338,11 @@ if plot_stage1
     %plot(t_reentry_5,y_reentry_5(:,im),'m','LineWidth',2);
     yline(ms(reentry_stage),'-','Reentry stage structural mass');
     ylim([0.99*ms(reentry_stage),1.01*y_reentry_0(1,im)])
-    title(['mass change for reentry of stage ' num2str(reentry_stage)]);
+    title(['Mass evolution in function of time for the reentry of stage ' num2str(reentry_stage)]);
     xlabel('Time (s)'); 
     ylabel('Mass (kg)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
     grid;
 
     figure(9); hold on;
@@ -361,12 +356,15 @@ if plot_stage1
     plot(t_reentry_3,y_reentry_3(:,iV),'b','LineWidth',2);
     plot(t_reentry_4,y_reentry_4(:,iV),'c','LineWidth',2);
     %plot(t_reentry_5,y_reentry_5(:,iV),'m','LineWidth',2);
-    title(['velocity change for reentry of stage '  num2str(reentry_stage)]);
+    title(['Velocity evolution in function of time for the reentry of stage '  num2str(reentry_stage)]);
     xlabel('Time (s)');
     ylabel('Velocity (m/s)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
     grid;
 end
 
+delta_V_descent_stage_1=[y_reentry_0(1,iV), y_reentry_0(end,iV), y_reentry_1(end,iV), y_reentry_2(end,iV), y_reentry_3(end,iV), y_reentry_4(end,iV)];
  %% Simulating the powered descent landing of the reusable rocket
 
     
@@ -402,7 +400,7 @@ param = [Isp(reentry_stage), Cd, A, reentry_stage, phase];
 
 y0_reentry_0 = [Initial_speed Initial_gamma Initial_h Initial_x Initial_m]; % Initial state vector, 1 line
 
-ti_reentry_0 = tf1; % Initial time for phase 7.1 (s) ie end of burnout of phase 1
+ti_reentry_0 = tf2; % Initial time for phase 7.1 (s) ie end of burnout of phase 1
 tf_reentry_0 = 16+ti_reentry_0; % Final time for phase 7.1 (s). TBD
 
 [t_reentry_0, y_reentry_0] = ode45(@(t, y) reentry_dynamicsODE(t, 0, y, param), (ti_reentry_0:0.05:tf_reentry_0), y0_reentry_0, options);
@@ -459,83 +457,113 @@ tf_reentry_4 = 60*4+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 
 
 %% Ploting phase
-figure(10); hold on;
-if add_ascent_plot
-    plot(t1,y1(:,ih)/1e3,'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
-    plot(t2,y2(:,ih)/1e3,'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
-    plot(t3,y3(:,ih)/1e3,'MarkerFaceColor','#EDB120','LineWidth',2);
-end
-plot(t_reentry_0,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
-plot(t_reentry_1,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
-plot(t_reentry_2,y_reentry_2(:,ih)/1e3,'MarkerFaceColor','#77AC30','LineWidth',2);
-plot(t_reentry_3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
-plot(t_reentry_4,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
-%plot(t_reentry_5,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
-title(['Altitude change for reentry of stage ' num2str(reentry_stage)]);
-xlabel('Time (s)');
-ylabel('Altitude (km)');
-grid;
+if plot_stage1
+    figure(10); hold on;
+    if add_ascent_plot
+        plot(t1,y1(:,ih)/1e3,'Color','#0072BD','LineWidth',2);
+        plot(t2,y2(:,ih)/1e3,'MarkerFaceColor','#D95319','LineWidth',2);
+        plot(t3,y3(:,ih)/1e3,'MarkerFaceColor','#EDB120','LineWidth',2);
+        lengend_list=["Ascent phase before gravity turn", "Ascent phase of stage 1", ...
+            "Ascent phase of stage 2","Waiting phase before reentry",...
+            "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
+            "Turning phase to land at 90°", "Parachutes and thrusting phase"] ;
+    end
+    plot(t_reentry_0,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
+    plot(t_reentry_1,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
+    plot(t_reentry_2,y_reentry_2(:,ih)/1e3,'Color','#77AC30','LineWidth',2);
+    plot(t_reentry_3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
+    plot(t_reentry_4,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
+    %plot(t_reentry_5,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
+    title(['Altitude evolution in function of time for the reentry of stage ' num2str(reentry_stage)]);
+    xlabel('Time (s)');
+    ylabel('Altitude (km)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
+    grid;
 
-% figure(11); hold on;
-% plot(t_reentry_1,y_reentry_1(:,igamma)*180/pi,'r','LineWidth',2);
-% plot(t_reentry_2,y_reentry_2(:,igamma)*180/pi,'g','LineWidth',2);
-% plot(t_reentry_3,y_reentry_3(:,igamma)*180/pi,'b','LineWidth',2);
-% plot(t_reentry_4,y_reentry_4(:,igamma)*180/pi,'c','LineWidth',2);
-% %plot(t_reentry_5,y_reentry_5(:,igamma)*180/pi,'m','LineWidth',2);
-% title(['Flight path angle change for reentry of stage ' num2str(reentry_stage)]);
-% xlabel('Time (s)');
-% ylabel('Flight path angle (deg)');
-% grid;
+    % figure(11); hold on;
+    % plot(t_reentry_1,y_reentry_1(:,igamma)*180/pi,'r','LineWidth',2);
+    % plot(t_reentry_2,y_reentry_2(:,igamma)*180/pi,'g','LineWidth',2);
+    % plot(t_reentry_3,y_reentry_3(:,igamma)*180/pi,'b','LineWidth',2);
+    % plot(t_reentry_4,y_reentry_4(:,igamma)*180/pi,'c','LineWidth',2);
+    % %plot(t_reentry_5,y_reentry_5(:,igamma)*180/pi,'m','LineWidth',2);
+    % title(['Flight path angle change for reentry of stage ' num2str(reentry_stage)]);
+    % xlabel('Time (s)');
+    % ylabel('Flight path angle (deg)');
+    % grid;
 
-figure(12); hold on;
-if add_ascent_plot
-    plot(y1(:,ix)/1e3,y1(:,ih)/1e3,'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
-    plot(y2(:,ix)/1e3,y2(:,ih)/1e3,'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
-    plot(y3(:,ix)/1e3,y3(:,ih)/1e3,'MarkerFaceColor','#EDB120','LineWidth',2);
-end
-plot(y_reentry_0(:,ix)/1e3,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
-plot(y_reentry_1(:,ix)/1e3,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
-plot(y_reentry_2(:,ix)/1e3,y_reentry_2(:,ih)/1e3,'MarkerFaceColor','#77AC30','LineWidth',2);
-plot(y_reentry_3(:,ix)/1e3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
-plot(y_reentry_4(:,ix)/1e3,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
-%plot(y_reentry_5(:,ix)/1e3,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
-title(['Altitude change for reentry of stage ' num2str(reentry_stage)]);
-xlabel('X position (km)');
-ylabel('Altitude (km)');
-grid;
+    figure(12); hold on;
+    if add_ascent_plot
+        plot(y1(:,ix)/1e3,y1(:,ih)/1e3,'MarkerFaceColor','#0072BD','LineWidth',2);
+        plot(y2(:,ix)/1e3,y2(:,ih)/1e3,'MarkerFaceColor','#D95319','LineWidth',2);
+        plot(y3(:,ix)/1e3,y3(:,ih)/1e3,'MarkerFaceColor','#EDB120','LineWidth',2);
+    end
+    plot(y_reentry_0(:,ix)/1e3,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
+    plot(y_reentry_1(:,ix)/1e3,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
+    plot(y_reentry_2(:,ix)/1e3,y_reentry_2(:,ih)/1e3,'Color','#77AC30','LineWidth',2);
+    plot(y_reentry_3(:,ix)/1e3,y_reentry_3(:,ih)/1e3,'b','LineWidth',2);
+    plot(y_reentry_4(:,ix)/1e3,y_reentry_4(:,ih)/1e3,'c','LineWidth',2);
+    %plot(y_reentry_5(:,ix)/1e3,y_reentry_5(:,ih)/1e3,'m','LineWidth',2);
+    title(['Altitude evolution in function of ground distance for the reentry of stage ' num2str(reentry_stage)]);
+    xlabel('X position (km)');
+    ylabel('Altitude (km)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
+    grid;
 
-figure(13); hold on;
-if add_ascent_plot
-    plot(t1,y1(:,im),'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
-    plot(t2,y2(:,im),'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
-    plot(t3,y3(:,im),'MarkerFaceColor','#EDB120','LineWidth',2);
-end
-plot(t_reentry_0,y_reentry_0(:,im),'m','LineWidth',2);
-plot(t_reentry_1,y_reentry_1(:,im),'r','LineWidth',2);
-plot(t_reentry_2,y_reentry_2(:,im),'MarkerFaceColor','#77AC30','LineWidth',2);
-plot(t_reentry_3,y_reentry_3(:,im),'b','LineWidth',2);
-plot(t_reentry_4,y_reentry_4(:,im),'c','LineWidth',2);
-%plot(t_reentry_5,y_reentry_5(:,im),'m','LineWidth',2);
-yline(ms(reentry_stage),'-','Reentry stage structural mass');
-ylim([0.99*ms(reentry_stage),1.01*y_reentry_0(1,im)])
-title(['mass change for reentry of stage ' num2str(reentry_stage)]);
-xlabel('Time (s)'); 
-ylabel('Mass (kg)');
-grid;
+    figure(13); hold on;
+    if add_ascent_plot
+        plot(t1,y1(:,im),'MarkerFaceColor','#0072BD','LineWidth',2);
+        plot(t2,y2(:,im),'MarkerFaceColor','#D95319','LineWidth',2);
+        plot(t3,y3(:,im),'MarkerFaceColor','#EDB120','LineWidth',2);
+    end
+    plot(t_reentry_0,y_reentry_0(:,im),'m','LineWidth',2);
+    plot(t_reentry_1,y_reentry_1(:,im),'r','LineWidth',2);
+    plot(t_reentry_2,y_reentry_2(:,im),'Color','#77AC30','LineWidth',2);
+    plot(t_reentry_3,y_reentry_3(:,im),'b','LineWidth',2);
+    plot(t_reentry_4,y_reentry_4(:,im),'c','LineWidth',2);
+    %plot(t_reentry_5,y_reentry_5(:,im),'m','LineWidth',2);
+    yline(ms(reentry_stage),'-','Reentry stage structural mass');
+    ylim([0.99*ms(reentry_stage),1.01*y_reentry_0(1,im)])
+    title(['Mass evolution in function of time for the reentry of stage ' num2str(reentry_stage)]);
+    xlabel('Time (s)'); 
+    ylabel('Mass (kg)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
+    grid;
 
-figure(14); hold on;
-if add_ascent_plot
-    plot(t1,y1(:,iV),'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
-    plot(t2,y2(:,iV),'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
-    plot(t3,y3(:,iV),'MarkerFaceColor','#EDB120','LineWidth',2);
+    figure(14); hold on;
+    if add_ascent_plot
+        plot(t1,y1(:,iV),'MarkerFaceColor','#0072BD','LineWidth',2);
+        plot(t2,y2(:,iV),'MarkerFaceColor','#D95319','LineWidth',2);
+        plot(t3,y3(:,iV),'MarkerFaceColor','#EDB120','LineWidth',2);
+    end
+    plot(t_reentry_0,y_reentry_0(:,iV),'m','LineWidth',2);
+    plot(t_reentry_1,y_reentry_1(:,iV),'r','LineWidth',2);
+    plot(t_reentry_2,y_reentry_2(:,iV),'Color','#77AC30','LineWidth',2);
+    plot(t_reentry_3,y_reentry_3(:,iV),'b','LineWidth',2);
+    plot(t_reentry_4,y_reentry_4(:,iV),'c','LineWidth',2);
+    %plot(t_reentry_5,y_reentry_5(:,iV),'m','LineWidth',2);
+    title(['Velocity evolution in function of time for the reentry of stage '  num2str(reentry_stage)]);
+    xlabel('Time (s)');
+    ylabel('Velocity (m/s)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',font_size,'FontName', "Times New Roman")
+    legend(lengend_list)
+    grid;
 end
-plot(t_reentry_0,y_reentry_0(:,iV),'m','LineWidth',2);
-plot(t_reentry_1,y_reentry_1(:,iV),'r','LineWidth',2);
-plot(t_reentry_2,y_reentry_2(:,iV),'MarkerFaceColor','#77AC30','LineWidth',2);
-plot(t_reentry_3,y_reentry_3(:,iV),'b','LineWidth',2);
-plot(t_reentry_4,y_reentry_4(:,iV),'c','LineWidth',2);
-%plot(t_reentry_5,y_reentry_5(:,iV),'m','LineWidth',2);
-title(['velocity change for reentry of stage '  num2str(reentry_stage)]);
-xlabel('Time (s)');
-ylabel('Velocity (m/s)');
-grid;
+
+
+delta_V_descent_stage_2=[y_reentry_0(1,iV), y_reentry_0(end,iV), y_reentry_1(end,iV), y_reentry_2(end,iV), y_reentry_3(end,iV), y_reentry_4(end,iV)];
+
+disp(" V stage 1");
+disp(delta_V_descent_stage_1);
+disp(" V stage 2");
+disp(delta_V_descent_stage_2);
+disp("delta V stage 1");
+for i=1:5
+    disp(delta_V_descent_stage_1(i+1)-delta_V_descent_stage_1(i));
+end
+disp("delta V stage 2");
+for i=1:5
+    disp(delta_V_descent_stage_2(i+1)-delta_V_descent_stage_2(i));
+end
