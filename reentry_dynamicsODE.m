@@ -37,6 +37,9 @@ end
 D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 
 h_hoovering=190; % thrusting before landing
+if stage==2
+    h_hoovering=12;
+end
 if y(ih)<h_hoovering
     T=-0.99*y(im)*g; %high thrust with the remaining propellant! (as soon as it does not exceed the maximal one.
 end
