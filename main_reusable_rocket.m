@@ -280,12 +280,17 @@ tf_reentry_4 = 60*4+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 %% Ploting phase
 plot_stage1 = true;
 add_ascent_plot=true;
+lengend_list=["Waiting phase before reentry", "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
+    "Turning phase to land at 90°", "Deploy parachutes and thrusting before landing"];
 
 if plot_stage1
     figure(5); hold on;
     if add_ascent_plot
         plot(t1,y1(:,ih)/1e3,'MarkerFaceColor',[0 0.4470 0.7410],'LineWidth',2);
         plot(t2,y2(:,ih)/1e3,'MarkerFaceColor',[0.8500 0.3250 0.0980],'LineWidth',2);
+        lengend_list=["Ascent phase before gravity turn", "Thrusting phase during gravity turn", "Waiting phase before reentry",...
+            "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
+            "Turning phase to land at 90°", "Deploy parachutes and thrusting before landing"] ;
     end
     plot(t_reentry_0,y_reentry_0(:,ih)/1e3,'m','LineWidth',2);
     plot(t_reentry_1,y_reentry_1(:,ih)/1e3,'r','LineWidth',2);
@@ -296,6 +301,8 @@ if plot_stage1
     title(['Altitude change for reentry of stage ' num2str(reentry_stage)]);
     xlabel('Time (s)');
     ylabel('Altitude (km)');
+    set(findall(gcf,'-property','FontSize'),'FontSize',12)
+    legend(lengend_list)
     grid;
 
     % figure(6); hold on;
