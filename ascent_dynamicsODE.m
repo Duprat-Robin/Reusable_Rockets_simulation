@@ -35,6 +35,7 @@ g = mu_E/((Re+y(ih))^2); %Earth model: gravitational acceleration in function of
 [Temp, sound_vel, P, rho] = atmoscoesa(y(ih), 'None'); %Matlab atmospheric model
 
 if isnan(rho)
+    %disp(y(ih))
     rho = 0;
 end
 
@@ -42,7 +43,7 @@ D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 q = 0.5*rho*y(iV)^2; %dynamic pressure
 
 dy(iV) = (T-D)/y(im) - (g-(y(iV)^2)/(Re+y(ih)))*sin(y(igamma)); %acceleration (m/s^2)
-if phase == 1
+if stage == 1 || stage == 2
     dy(igamma) = (gammas(2)-gammas(1))/(tf(2)-tf(1)); %Linear progression for dgamma during 1st phase
 elseif stage ~= 3 && phase ~= 4 && y(igamma) > 0
 %else
