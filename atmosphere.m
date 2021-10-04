@@ -1,21 +1,12 @@
-function rho = atmosphere(h, g)
+function rho = atmosphere(h)
 %ATMOSPHERE Summary of this function goes here
 %   Detailed explanation goes here
 %% Standard atmosphere
-p0 = 101325; %Pressure at sea level (Pa)
-T0 = 288.15; %Temperature at sea level (K)
-R = 287.058; %Specific gas constant for dry air (J/(kg.K))
-M = 2.89652e-2; %Molar mass of dry air (kg/mol)
-L = 6.e-3; %(K/m) linear evolution of temperature with atm in the Troposphere
-
-H_tropopause = 11e3; %altitude of the tropopause (m)
+rho0 = 1.225; %air density at sea level (kg/m^3)
 
 %% Models
+H0 = 8.5e3; %atmosphere scale height
 
-if h<H_tropopause
-    rho = (p0*M/(R*T0)) * (1-L*h/T0)^(g*M/(R*L)-1); %air density at altitude h=y(3) (kg/m^3) in the Troposphere
-else
-    rho = 1; %Just to have a non-zero value, waiting for a better model
-end
+rho = rho0*exp(-h/H0);
 end
 

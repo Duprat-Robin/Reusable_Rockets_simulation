@@ -30,9 +30,11 @@ iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 %% Rocket parameters
 Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
-A = pi*3.66^2; %Surface of the rocket in contact with the airflow (m^2)
-nb_engines = [1, 1, 1];
+A = [pi*3.66^2, pi*3.66^2, pi*3.66^2]; %Surface of the rocket in contact with the airflow (m^2)
+nb_engines = [2, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
+
+%mp = [243786, 7277, 3752];
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
 mp = [96255.4, 16013.9, 3751.57]; %stages' propellant mass (kg)
 m_p = 732.8 + 1.6927e3; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
