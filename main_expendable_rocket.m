@@ -30,14 +30,15 @@ iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 %% Rocket parameters
 Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
-A = [pi*3.66^2, pi*3.66^2, pi*3.66^2]; %Surface of the rocket in contact with the airflow (m^2)
+A = [((4.1/2)^2)*pi, pi*(2.8/2)^2, pi*(3.6/2)^2]; %Surface of the rocket in contact with the airflow (m^2)
 nb_engines = [2, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 
+Dm = 3.3e3;
 %mp = [243786, 7277, 3752];
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
 mp = [96255.4, 16013.9, 3751.57]; %stages' propellant mass (kg)
-m_p = 732.8 + 1.6927e3; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
+m_p = 732.8 + Dm; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
 V0 = 0; % (m/s)
@@ -51,7 +52,7 @@ h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 % Initial condition
 phase = 1; %Current phase
 stage = 1; %Stage currently use by the rocket
-param = [Isp(stage), Cd, A, stage, phase];
+param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y01 = [V0 gamma0 h0 x0 m0]; % Initial state vector, 1 line
 
@@ -61,7 +62,7 @@ ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate
 
 %2.
 phase = 2;
-param = [Isp(stage), Cd, A, stage, phase];
+param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y02 = [y1(end,iV) y1(end,igamma) y1(end,ih) y1(end,ix) y1(end,im)];
 
@@ -72,7 +73,7 @@ tf1 = tb1; %end of the 1st stage phase
 %3.
 phase = 3;
 stage = 2;
-param = [Isp(stage), Cd, A, stage, phase];
+param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y03 = [y2(end,iV) y2(end,igamma) y2(end,ih) y2(end,ix) y2(end,im)];
 y03(end,im) = y03(end,im)-ms(stage-1); %1st stage removal
@@ -84,7 +85,7 @@ tf2 = tb2 + tf1; %end of the 2nd stage phase
 %4.
 phase = 4;
 stage = 3;
-param = [Isp(stage), Cd, A, stage, phase];
+param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y04 = [y3(end,iV) y3(end,igamma) y3(end,ih) y3(end,ix) y3(end,im)];
 y04(end,im) = y04(end,im)-ms(stage-1); %2nd stage removal
@@ -117,6 +118,9 @@ Delta_V_apogee = Vc2 - V_apogee;
 Delta_V = Delta_V_perigee + Delta_V_apogee; % cost of the total transfer 
 Delta_t = pi*sqrt(a^3/mu_E); % transfer time
 
+DV = -Isp(stage)*g0*log((m_init-Dm)/m_init);
+disp(DV)
+disp(Delta_V)
 Delta_m = m_init-m_init*exp(-Delta_V/(Isp(stage)*g0));
 disp(m_init - Delta_m);
 m_s=Delta_m-m_p; %in general m_s = 1/7 m_p
