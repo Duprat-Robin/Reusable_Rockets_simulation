@@ -16,7 +16,10 @@
     % Final conditions (for the rocket and not the mission): gamma=0, H=H*, V=V*
 close all
 %% Constant values
-
+i0 = 5.2308333*pi/180; %Kourou inlcination (deg)
+i1 = 56*pi/180; %final inclination (deg)
+CirE = 2*pi*Re*cos(i0);
+V_E = CirE/(24*3600); %m/s Earth rotation velocity at Kourou, ~461.8897 m/s
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
 Re=6378e3; % mean radius of Earth (m)
 g0=9.80665; % gravity of Earth at sea level (m/s^2)
@@ -34,10 +37,10 @@ A = [((4.1/2)^2)*pi, pi*(2.8/2)^2, pi*(3.6/2)^2]; %Surface of the rocket in cont
 nb_engines = [2, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 
-Dm = 3.3e3;
+Dm = 7.54e3;
 %mp = [243786, 7277, 3752];
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
-mp = [96255.4, 16013.9, 3751.57]; %stages' propellant mass (kg)
+mp = [105e3, 16e3, 8e3]; %stages' propellant mass (kg)
 m_p = 732.8 + Dm; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
@@ -107,7 +110,6 @@ m_init=y4(end,im); %initial mass for phase 6. 2100kg for the moment, will be y(5
 %m_star=732.8;
 
 %g0=9.80665; 
-
 Vc1 = sqrt(mu_E/h);% current speed on parking orbit
 Vc2 = sqrt(mu_E/h_target); % to be speed on MEO
 a = (h+h_target)/2; %semi major axis of the transfer orbit
@@ -115,8 +117,10 @@ V_perigee = sqrt(mu_E*(2/h-1/a)); %velocity at the perigee of the transfer orbit
 V_apogee = sqrt(mu_E*(2/h_target-1/a)); %velocity at the apogee of the transfer orbit
 Delta_V_perigee = V_perigee - Vc1;
 Delta_V_apogee = Vc2 - V_apogee;
-Delta_V = Delta_V_perigee + Delta_V_apogee; % cost of the total transfer 
+Delta_V_inclination = 2*Vc2*sin((i1-i0)/2);
+Delta_V = Delta_V_perigee + Delta_V_apogee + Delta_V_inclination; % cost of the total transfer 
 Delta_t = pi*sqrt(a^3/mu_E); % transfer time
+
 
 DV = -Isp(stage)*g0*log((m_init-Dm)/m_init);
 disp(DV)
@@ -179,3 +183,20 @@ ylabel('Speed (km/s)');
 set(findall(gcf,'-property','FontSize'),'FontSize',font_size, 'FontName', "Times New Roman");
 legend(lengend_list);
 grid;
+
+figure(5); hold on;
+plot(t1,y1(:,im),'r','LineWidth',2);
+plot(t2,y2(:,im),'g','LineWidth',2);
+plot(t3,y3(:,im),'b','LineWidth',2);
+plot(t4,y4(:,im),'y','LineWidth',2);
+title('Expendable rocket: Mass variation in function of time');
+xlabel('Time (s)');
+ylabel('Mass (kg)');
+set(findall(gcf,'-property','FontSize'),'FontSize',font_size, 'FontName', "Times New Roman");
+legend(lengend_list);
+grid;
+
+disp("----")
+disp(y4(end,iV))
+disp(y4(end,ih))
+% close all

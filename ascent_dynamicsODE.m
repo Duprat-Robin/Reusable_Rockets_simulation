@@ -21,6 +21,9 @@ iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 Re = 6371e3; %Earth radius (m). To adapt with the Launch point (average 6371km)
 g0=9.80665; %gravitational acceleration on Earth at sea level (m/s^2)
 mu_E = 3.986e14; %Earth's gravitationnal constant (m^3/s^2)
+i0 = 5.2308333*pi/180; %Kourou inlcination (deg)
+CirE = 2*pi*Re*cos(i0);
+V_E = CirE/(24*3600); %m/s Earth rotation velocity at Kourou, ~461.8897 m/s
 
 %% Rocket parameters
 Isp = param(1); %Isp (s). TBD
@@ -66,7 +69,7 @@ if y(ih) >= Hf
      dy(ih) = 0;
 end
 
-if y(iV) >= sqrt(mu_E/(Re+Hf))
+if y(iV) >= sqrt(mu_E/(Re+Hf))-V_E
      dy(iV) = 0;
 end
 
