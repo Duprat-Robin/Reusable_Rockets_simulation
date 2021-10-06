@@ -36,12 +36,14 @@ end
 
 D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 
-h_hoovering=350; % thrusting before landing
+h_hoovering=500; % thrusting before landing
+coef_thurst=0.9999;
 if stage==2
-    h_hoovering=80;
+    h_hoovering=85;
+    coef_thurst=0.99;
 end
 if y(ih)<h_hoovering
-    T=-0.99*y(im)*g; %high thrust with the remaining propellant! (as soon as it does not exceed the maximal one.
+    T=-coef_thurst*y(im)*g; %high thrust with the remaining propellant! (as soon as it does not exceed the maximal one.
 end
 
 if y(ih)<=0 %landed!
