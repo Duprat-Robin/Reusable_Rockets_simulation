@@ -18,35 +18,39 @@ close all
 %% Constant values
 i0 = 5.2308333*pi/180; %Kourou inlcination (deg)
 i1 = 56*pi/180; %final inclination (deg)
+Re=6378e3; % mean radius of Earth (m)
 CirE = 2*pi*Re*cos(i0);
 V_E = CirE/(24*3600); %m/s Earth rotation velocity at Kourou, ~461.8897 m/s
 mu_E=3.968e14; % gravitational parameter of Earth (m^3s^-2)
-Re=6378e3; % mean radius of Earth (m)
+
 g0=9.80665; % gravity of Earth at sea level (m/s^2)
-Hf = 200e3; %parking orbit altitude (m)
-Xf = 200e3; %distance from launch pad at the end of ascent phase (m). Usefull for BVP
 
 t0 = 0; % ignition time of the 1st stage (s)
 
 options = odeset('RelTol',1e-10,'AbsTol',1e-9);
-iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
+iV = 1; igamma = 2; ih = 3; ix = 4; im = 5; %state vector index
+
+%% Final conditions
+Hf = 200e3; %parking orbit altitude (m)
+Vf = sqrt(mu_E/(Re+Hf))-V_E; %Speed related to the launch site (moving with the Earth at a velocity V_E)
+
 %% Rocket parameters
 Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
-A = [((4.1/2)^2)*pi, pi*(2.8/2)^2, pi*(3.6/2)^2]; %Surface of the rocket in contact with the airflow (m^2)
-nb_engines = [2, 1, 1];
+A = [((4.1/2)^2), (2.8/2)^2, (3.6/2)^2].*pi; %Surface of the rocket in contact with the airflow (m^2)
+nb_engines = [1, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 
-Dm = 7.54e3;
-%mp = [243786, 7277, 3752];
+Dm = 7.54e3; %Extra propellant for orbital maneuvers (parking > MEO)
 ms = [16e3, 4e3, 1.5e3]; %stages' strucutal mass (kg)
-mp = [105e3, 16e3, 8e3]; %stages' propellant mass (kg)
+mp = [101.5e3, 15.45e3, 12.6e3]; %stages' propellant mass (kg)
 m_p = 732.8 + Dm; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
 m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
 V0 = 0; % (m/s)
 gamma0 = pi/2; % (rad)
-gamma1 = gamma0 - 0.1*pi/180;
+gamma_1deg = 1;
+gamma1 = gamma0 - gamma_1deg*pi/180;
 x0 = 0; % (m)
 h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 %% Phases
@@ -59,20 +63,24 @@ param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y01 = [V0 gamma0 h0 x0 m0]; % Initial state vector, 1 line
 
-ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
-% On a paper we got 12s.
-[t1, y1] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [gamma0, gamma1], [t0, ti1]), [t0 ti1], y01, options);
+ti1 = 17.5; % Final time for phase 1 (s). Must be a short time (i for intermediate)
+
+[t1, y1] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, ...
+    [gamma0, gamma1], [t0, ti1]), [t0 ti1], y01, options);
 
 %2.
-phase = 2;
+phase = 2; %We still use 1st stage
 param = [Isp(stage), Cd, max(A(1, stage:end)), stage, phase];
 
 y02 = [y1(end,iV) y1(end,igamma) y1(end,ih) y1(end,ix) y1(end,im)];
 
 tb1 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 1st stage (s)
 tf1 = tb1; %end of the 1st stage phase
-[t2, y2] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [y1(end,igamma), 32*pi/180], [ti1 tf1]), [ti1 tf1], y02, options);
-
+%[t2, y2] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, ...
+%[y1(end,igamma), 32*pi/180], [ti1 tf1]), [ti1 tf1], y02, options); % if
+%linear law
+[t2, y2] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param), ...
+    [ti1 tf1], y02, options); %if natural gravity turn
 %3.
 phase = 3;
 stage = 2;
@@ -83,7 +91,8 @@ y03(end,im) = y03(end,im)-ms(stage-1); %1st stage removal
 
 tb2 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf2 = tb2 + tf1; %end of the 2nd stage phase
-[t3, y3] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [y2(end,igamma), 2*pi/180], [tf1 tf2]), [tf1 tf2], y03, options);
+[t3, y3] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, ...
+    [y2(end,igamma), 2*pi/180], [tf1 tf2]), [tf1 tf2], y03, options);
 
 %4.
 phase = 4;
@@ -95,7 +104,8 @@ y04(end,im) = y04(end,im)-ms(stage-1); %2nd stage removal
 
 tb3 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf3 = tb3 + tf2; %end of the 3rd stage phase
-[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [y3(end,igamma) 0], [tf2 tf3]), [tf2 tf3], y04, options);
+[t4, y4] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, ...
+    [y3(end,igamma) 0], [tf2 tf3]), [tf2 tf3], y04, options);
 for i=1:size(y4(:,2),1)
     y4(i,igamma) = atan(tan(y3(end,igamma))*(1-(t4(i)-tf2)/tb3)); %Steering law: linear tangent law
 end
@@ -123,10 +133,11 @@ Delta_t = pi*sqrt(a^3/mu_E); % transfer time
 
 
 DV = -Isp(stage)*g0*log((m_init-Dm)/m_init);
-disp(DV)
-disp(Delta_V)
+disp("Delta V for orbital maneuvers")
+disp("The one we produce " + num2str(DV/1e3) + "km/s")
+disp("The one we need " + num2str(Delta_V/1e3) + "km/s")
 Delta_m = m_init-m_init*exp(-Delta_V/(Isp(stage)*g0));
-disp(m_init - Delta_m);
+%disp(m_init - Delta_m);
 m_s=Delta_m-m_p; %in general m_s = 1/7 m_p
 
 %% Ploting phase
@@ -196,7 +207,35 @@ set(findall(gcf,'-property','FontSize'),'FontSize',font_size, 'FontName', "Times
 legend(lengend_list);
 grid;
 
-disp("----")
-disp(y4(end,iV))
-disp(y4(end,ih))
-% close all
+disp("-------------------------------------------")
+disp("Orbital speed vs. Earth speed:")
+disp("Real orbital speed " + num2str(sqrt(mu_E/(Re+Hf))/1e3)+" km/s")
+disp("Without Earth rotating speed " + num2str(Vf/1e3)+" km/s")
+disp("Earth rotatin speed " + num2str(V_E) + "m/s")
+disp("Objectives:")
+disp(num2str(Hf/1e3)+" km")
+disp(num2str(Vf/1e3)+" km/s")
+disp("--Final altitude and speed--")
+disp(num2str(y4(end,iV)/1e3)+" km/s")
+disp(num2str(y4(end,ih)/1e3)+" km")
+
+disp("-------------------------------------------")
+disp("--Total Delta V (rocket + air and g drag)--")
+disp("Stage 1: " + num2str(y2(end, iV)))
+disp("Stage 2: " + num2str(y3(end, iV)-y2(end, iV)))
+disp("Stage 3: " + num2str(y4(end, iV)-y3(end, iV)))
+
+disp("-------------------------------------------")
+disp("--Gamma at the end of phases (deg)--")
+disp("Stage 1: " + num2str(y1(end, igamma)*180/pi))
+disp("Stage 1 + phase 2: " + num2str(y2(end, igamma)*180/pi))
+disp("Stage 2: " + num2str(y3(end, igamma)*180/pi))
+disp("Stage 3: " + num2str(y4(end, igamma)*180/pi))
+
+disp("-------------------------------------------")
+disp("--Altitude at the end of phases (km)--")
+disp("Stage 1: " + num2str(y1(end, ih)/1e3))
+disp("Stage 1 + phase 2: " + num2str(y2(end, ih)/1e3))
+disp("Stage 2: " + num2str(y3(end, ih)/1e3))
+disp("Stage 3: " + num2str(y4(end, ih)/1e3))
+%close all
