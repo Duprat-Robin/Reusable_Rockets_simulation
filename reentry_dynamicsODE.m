@@ -36,10 +36,10 @@ end
 
 D = 0.5*A*rho*Cd*y(iV)^2; % Drag (N)
 
-h_hoovering=500; % thrusting before landing
-coef_thurst=0.9999;
+h_hoovering=149; % thrusting before landing
+coef_thurst=0.99999;
 if stage==2
-    h_hoovering=85;
+    h_hoovering=87;
     coef_thurst=0.99;
 end
 if y(ih)<h_hoovering

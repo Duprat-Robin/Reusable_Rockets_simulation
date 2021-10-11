@@ -38,21 +38,24 @@ iV = 1; igamma = 2; ih = 3; ix = 4; im = 5;
 Isp = [378, 359, 467]; %Isp (s) for 1st stage. TBD
 Cd = 0.85; %Drag coefficient. 1st assumption: the rocket is a cylinder (cf. Wikipedia Drag Coefficient)
 A = [pi*(4.1/2)^2, pi*(2.8/2)^2, pi*(3.6/2)^2]; %Surface of the rocket in contact with the airflow (m^2)
-nb_engines = [2, 1, 1];
+nb_engines = [1, 1, 1];
 T = [2205000, 533000, 180000].*nb_engines; %stages' trhrust (N)
 
 Dm = 7.54e3;
 ms = [16e3+550, 4e3+550, 1.5e3]; %stages' strucutal mass (kg)
+%ms = [16e3, 4e3, 1.5e3];
 %mp = [418647.6, 31134, 3751.57]; %stages' propellant mass (kg)
-m_fuel_reentry = [3750, 150, 0]; %stages' propellant mass need for reentry, includeded in mp. TBD(kg)
-mp = [105e3, 16e3, 8e3]; %stages' propellant mass (kg)
+m_fuel_reentry = [650, 150, 0]; %stages' propellant mass need for reentry, includeded in mp. TBD(kg)
+%m_fuel_reentry = [0, 0, 0];
+mp = [101.5e3-10.5e3, 15.45e3+12.1e3, 12.6e3-0.85e3]; %stages' propellant mass (kg)
 m_p = 732.8 + Dm; %Mass of the payload at launch (kg) + Fuel for orbital maneuvers
-m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 mp=mp+m_fuel_reentry;
+m0 = sum(ms) + sum(mp) + m_p; %Total mass of the rocket at lift-off (kg)
 
 V0 = 0; % (m/s)
 gamma0 = pi/2; % (rad)
-gamma1 = gamma0 - 0.1*pi/180;
+gamma_1deg = 1;
+gamma1 = gamma0 - gamma_1deg*pi/180;
 x0 = 0; % (m)
 h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 %% Phases
@@ -65,7 +68,7 @@ param = [Isp(stage), Cd, A(stage), stage, phase];
 
 y01 = [V0 gamma0 h0 x0 m0]; % Initial state vector, 1 line
 
-ti1 = 10; % Final time for phase 1 (s). Must be a short time (i for intermediate)
+ti1 = 17.5; % Final time for phase 1 (s). Must be a short time (i for intermediate)
 % On a paper we got 12s.
 [t1, y1] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, [gamma0, gamma1], [t0, ti1]), [t0 ti1], y01, options);
 
@@ -132,7 +135,7 @@ disp(Delta_m_hohmann);
 m_s_hohmann=Delta_m_hohmann-m_p; %in general m_s = 1/7 m_p
 
 %% Ploting phase for payload
-plot_payload = true;
+plot_payload = false;
 
 if plot_payload
     figure(1); hold on;
@@ -218,7 +221,7 @@ tf_reentry_0 = 13+ti_reentry_0; % Final time for phase 7.1 (s). TBD
 [t_reentry_0, y_reentry_0] = ode45(@(t, y) reentry_dynamicsODE(t, 0, y, param), (ti_reentry_0:0.05:tf_reentry_0), y0_reentry_0, options);
 
 %7.1 - turning phase : thursting to turn to opposite gamma
-end_gamma=pi+57*pi/180;%TBD, 5° entry for the moment
+end_gamma=pi+43*pi/180;%TBD, 5° entry for the moment
 phase=7.1;
 
 param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
@@ -226,7 +229,7 @@ param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
 y0_reentry_1 = [y_reentry_0(end, iV) y_reentry_0(end,igamma) y_reentry_0(end,ih) y_reentry_0(end,ix) y_reentry_0(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_1 = tf_reentry_0; % Initial time for phase 7.1 (s) ie end of burnout of phase 1
-tf_reentry_1 = 20+ti_reentry_1; % Final time for phase 7.1 (s). TBD
+tf_reentry_1 = 6+ti_reentry_1; % Final time for phase 7.1 (s). TBD
 
 [t_reentry_1, y_reentry_1] = ode45(@(t, y) reentry_dynamicsODE(t, -T(reentry_stage)/100, y, param, [Initial_gamma, end_gamma], [ti_reentry_1, tf_reentry_1]), (ti_reentry_1:0.05:tf_reentry_1), y0_reentry_1, options);
 
@@ -237,9 +240,9 @@ param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
 y0_reentry_2 = [y_reentry_1(end, iV) y_reentry_1(end,igamma) y_reentry_1(end,ih) y_reentry_1(end,ix) y_reentry_1(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_2 = tf_reentry_1; % Initial time for phase 7.2, end of phase 7.1 (s)
-tf_reentry_2 = 53.85+ti_reentry_2; % Final time for phase 7.2 (s). TBD, for the moment 1 minute
+tf_reentry_2 = 83+ti_reentry_2; % Final time for phase 7.2 (s). TBD, for the moment 1 minute
 
-[t_reentry_2, y_reentry_2 ] = ode45(@(t, y) reentry_dynamicsODE(t, -T(reentry_stage)/55 , y, param), (ti_reentry_2:0.05:tf_reentry_2), y0_reentry_2, options);
+[t_reentry_2, y_reentry_2 ] = ode45(@(t, y) reentry_dynamicsODE(t, 0 , y, param), (ti_reentry_2:0.05:tf_reentry_2), y0_reentry_2, options);
 
 %7.3 turning to gamma =pi/2
 phase=7.3;
@@ -249,20 +252,20 @@ param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
 y0_reentry_3 = [y_reentry_2(end, iV) y_reentry_2(end,igamma) y_reentry_2(end,ih) y_reentry_2(end,ix) y_reentry_2(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_3 = tf_reentry_2; % Initial time for phase 7.3, end of phase 7.2 (s)
-tf_reentry_3 = 15.35+ti_reentry_3; % Final time for phase 7.3 (s). TBD, for the moment 10 s
+tf_reentry_3 = 10+ti_reentry_3; % Final time for phase 7.3 (s). TBD, for the moment 10 s
 
 [t_reentry_3, y_reentry_3] = ode45(@(t, y) reentry_dynamicsODE(t, -T(reentry_stage)/80, y, param, [y0_reentry_3(igamma), end_gamma], [ti_reentry_3, tf_reentry_3]), (ti_reentry_3:0.05:tf_reentry_3), y0_reentry_3, options);
 
 %7.4 - braking phase: parachute to brake
 phase=7.4;
 Cd_parachute = 1.5; %Drag coefficient for a space parachute (kevlar/nylon stuff, deployed at approx 10km to avoid it to brake)
-A_parachute = 150; %Surface of the 3 parachutes in contact with the airflow (m^2) TBD
+A_parachute = 200; %Surface of the 3 parachutes in contact with the airflow (m^2) TBD
 param = [Isp(reentry_stage), Cd_parachute, A_parachute, reentry_stage, phase];
 
 y0_reentry_4 = [y_reentry_3(end, iV) y_reentry_3(end,igamma) y_reentry_3(end,ih) y_reentry_3(end,ix) y_reentry_3(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_4 = tf_reentry_3; % Initial time for phase 7.4, end of phase 7.3 (s)
-tf_reentry_4 = 60*2+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the moment 3 minutes
+tf_reentry_4 = 60*1+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the moment 3 minutes
 
 
 [t_reentry_4, y_reentry_4] = ode45(@(t, y) reentry_dynamicsODE(t, 0 , y, param), (ti_reentry_4:0.05:tf_reentry_4), y0_reentry_4, options);
@@ -283,7 +286,7 @@ tf_reentry_4 = 60*2+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 
 
 %% Ploting phase
-plot_stage1 = true;
+plot_stage1 = false;
 plot_stage2 = true;
 add_ascent_plot=true;
 font_size=26;
@@ -411,7 +414,7 @@ tf_reentry_0 = 16+ti_reentry_0; % Final time for phase 7.1 (s). TBD
 [t_reentry_0, y_reentry_0] = ode45(@(t, y) reentry_dynamicsODE(t, 0, y, param), (ti_reentry_0:0.05:tf_reentry_0), y0_reentry_0, options);
 
 %7.1 - turning phase : thursting to turn to opposite gamma
-end_gamma=pi+19.393*pi/180;%TBD, 5° entry for the moment
+end_gamma=pi+13.5*pi/180;%TBD, 5° entry for the moment
 phase=7.1;
 
 param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
@@ -430,7 +433,7 @@ param = [Isp(reentry_stage), Cd, A(reentry_stage), reentry_stage, phase];
 y0_reentry_2 = [y_reentry_1(end, iV) y_reentry_1(end,igamma) y_reentry_1(end,ih) y_reentry_1(end,ix) y_reentry_1(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_2 = tf_reentry_1; % Initial time for phase 7.2, end of phase 7.1 (s)
-tf_reentry_2 = 150+ti_reentry_2; % Final time for phase 7.2 (s). TBD, for the moment 1 minute
+tf_reentry_2 = 167.6+ti_reentry_2; % Final time for phase 7.2 (s). TBD, for the moment 1 minute
 
 [t_reentry_2, y_reentry_2 ] = ode45(@(t, y) reentry_dynamicsODE(t, 0 , y, param), (ti_reentry_2:0.05:tf_reentry_2), y0_reentry_2, options);
 
@@ -455,7 +458,7 @@ param = [Isp(reentry_stage), Cd_parachute, A_parachute, reentry_stage, phase];
 y0_reentry_4 = [y_reentry_3(end, iV) y_reentry_3(end,igamma) y_reentry_3(end,ih) y_reentry_3(end,ix) y_reentry_3(end,im)]; % Initial state vector, 1 line
 
 ti_reentry_4 = tf_reentry_3; % Initial time for phase 7.4, end of phase 7.3 (s)
-tf_reentry_4 = 60*3+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the moment 3 minutes
+tf_reentry_4 = 60*5+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the moment 3 minutes
 
 
 [t_reentry_4, y_reentry_4] = ode45(@(t, y) reentry_dynamicsODE(t, 0 , y, param), (ti_reentry_4:0.05:tf_reentry_4), y0_reentry_4, options);
