@@ -55,6 +55,8 @@ x0 = 0; % (m)
 h0 = 0; % (m) Sea level, to adpat in function of the sarting point
 %% Phases
 
+Delta_Vs_thrust = zeros(1,3);
+
 % 1.
 % Initial condition
 phase = 1; %Current phase
@@ -81,6 +83,8 @@ tf1 = tb1; %end of the 1st stage phase
 %linear law
 [t2, y2] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param), ...
     [ti1 tf1], y02, options); %if natural gravity turn
+
+Delta_Vs_thrust(stage) = -Isp(stage)*g0*log(y2(end,im)/y01(im));
 %3.
 phase = 3;
 stage = 2;
@@ -93,6 +97,8 @@ tb2 = mp(stage)*g0*Isp(stage)/T(stage); %burnout time of 2nd stage (s)
 tf2 = tb2 + tf1; %end of the 2nd stage phase
 [t3, y3] = ode45(@(t, y) ascent_dynamicsODE(t, T(stage), y, param, ...
     [y2(end,igamma), 2*pi/180], [tf1 tf2]), [tf1 tf2], y03, options);
+
+Delta_Vs_thrust(stage) = -Isp(stage)*g0*log(y3(end,im)/y03(end,im));
 
 %4.
 phase = 4;
@@ -109,7 +115,7 @@ tf3 = tb3 + tf2; %end of the 3rd stage phase
 for i=1:size(y4(:,2),1)
     y4(i,igamma) = atan(tan(y3(end,igamma))*(1-(t4(i)-tf2)/tb3)); %Steering law: linear tangent law
 end
-
+Delta_Vs_thrust(stage) = -Isp(stage)*g0*log(y4(end,im)/y04(end,im));
 % 6. Hohmann transfer : using 3rd stage
 %Re=6378e3; % mean radius of Earth (m)
 h= Re + y4(end,ih); % Assuming a parking orbit of 200km.
@@ -151,7 +157,7 @@ set(0,'defaultTextFontName', 'Times')
 plot(t1,y1(:,ih)/1e3,'r','LineWidth',2);
 plot(t2,y2(:,ih)/1e3,'g','LineWidth',2);
 plot(t3,y3(:,ih)/1e3,'b','LineWidth',2);
-plot(t4,y4(:,ih)/1e3,'y','LineWidth',2);
+plot(t4,y4(:,ih)/1e3,'black','LineWidth',2);
 title('Expendable rocket: Altitude variation in function of time');
 xlabel('Time (s)');
 ylabel('Altitude (km)');
@@ -163,7 +169,7 @@ figure(2); hold on;
 plot(t1,y1(:,igamma)*180/pi,'r','LineWidth',2);
 plot(t2,y2(:,igamma)*180/pi,'g','LineWidth',2);
 plot(t3,y3(:,igamma)*180/pi,'b','LineWidth',2);
-plot(t4,y4(:,igamma)*180/pi,'y','LineWidth',2);
+plot(t4,y4(:,igamma)*180/pi,'black','LineWidth',2);
 title('Expendable rocket: Flight path angle variation in function of time');
 xlabel('Time (s)');
 ylabel('Flight path angle (deg)');
@@ -175,7 +181,7 @@ figure(3); hold on;
 plot(y1(:,ix)/1e3,y1(:,ih)/1e3,'r','LineWidth',2);
 plot(y2(:,ix)/1e3,y2(:,ih)/1e3,'g','LineWidth',2);
 plot(y3(:,ix)/1e3,y3(:,ih)/1e3,'b','LineWidth',2);
-plot(y4(:,ix)/1e3,y4(:,ih)/1e3,'y','LineWidth',2);
+plot(y4(:,ix)/1e3,y4(:,ih)/1e3,'black','LineWidth',2);
 title('Expendable rocket: Vertical profile');
 xlabel('X position (km)');
 ylabel('Altitude (km)');
@@ -187,7 +193,7 @@ figure(4); hold on;
 plot(t1,y1(:,iV)/1e3,'r','LineWidth',2);
 plot(t2,y2(:,iV)/1e3,'g','LineWidth',2);
 plot(t3,y3(:,iV)/1e3,'b','LineWidth',2);
-plot(t4,y4(:,iV)/1e3,'y','LineWidth',2);
+plot(t4,y4(:,iV)/1e3,'black','LineWidth',2);
 title('Expendable rocket: Velocity variation in function of time');
 xlabel('Time (s)');
 ylabel('Speed (km/s)');
@@ -199,7 +205,7 @@ figure(5); hold on;
 plot(t1,y1(:,im),'r','LineWidth',2);
 plot(t2,y2(:,im),'g','LineWidth',2);
 plot(t3,y3(:,im),'b','LineWidth',2);
-plot(t4,y4(:,im),'y','LineWidth',2);
+plot(t4,y4(:,im),'black','LineWidth',2);
 title('Expendable rocket: Mass variation in function of time');
 xlabel('Time (s)');
 ylabel('Mass (kg)');
@@ -238,4 +244,4 @@ disp("Stage 1: " + num2str(y1(end, ih)/1e3))
 disp("Stage 1 + phase 2: " + num2str(y2(end, ih)/1e3))
 disp("Stage 2: " + num2str(y3(end, ih)/1e3))
 disp("Stage 3: " + num2str(y4(end, ih)/1e3))
-%close all
+close all

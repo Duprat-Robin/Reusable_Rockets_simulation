@@ -286,8 +286,8 @@ tf_reentry_4 = 60*1+ti_reentry_4; % Final time for phase 7.4 (s). TBD, for the m
 
 
 %% Ploting phase
-plot_stage1 = false;
-plot_stage2 = true;
+plot_stage1 = true;
+plot_stage2 = false;
 add_ascent_plot=true;
 font_size=26;
 lengend_list=["Waiting phase before reentry", "Turning phase to revert speed", "Reentry inside atmosphere phase", ...
